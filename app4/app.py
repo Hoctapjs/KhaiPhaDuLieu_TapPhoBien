@@ -52,18 +52,18 @@ def suggest_products(product_name, itemsets_df):
         products.discard(product_name)
         recommendations.update(products)
 
-    return ", ".join(recommendations) if recommendations else "❌ Không tìm thấy gợi ý."
+    return ", ".join(recommendations) if recommendations else "❌🙄 Không tìm thấy gợi ý."
 
 # Giao diện Gradio
 def gradio_interface(file, min_support, product_name):
     if file is None:
-        return "❌ Vui lòng tải file CSV!", None, None, None, None, None
+        return "❌🙄 Vui lòng tải file CSV!", None, None, None, None, None
 
     frequent_itemsets, maximal_itemsets, closed_itemsets = process_data(file, min_support)
     plot_path = plot_frequent_itemsets(frequent_itemsets)
-    recommendations = suggest_products(product_name, frequent_itemsets) if product_name else "🔍 Chưa nhập sản phẩm."
+    recommendations = suggest_products(product_name, frequent_itemsets) if product_name else "❌🙄 Chưa nhập sản phẩm."
 
-    return "✅ Hoàn thành!", frequent_itemsets, maximal_itemsets, closed_itemsets, plot_path, recommendations
+    return "✅😊 Hoàn thành!", frequent_itemsets, maximal_itemsets, closed_itemsets, plot_path, recommendations
 
 # Tuỳ chỉnh CSS
 custom_css = """
@@ -81,33 +81,35 @@ h1, h2 {
 # Giao diện Blocks() của Gradio
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("# 🛒 Phân Tích Giỏ Hàng - Apriori")
-    gr.Markdown("### 📂 Tải lên file CSV để tìm tập phổ biến, tập tối đại, tập đóng và gợi ý sản phẩm")
+    gr.Markdown("### 📂😎 Tải lên file CSV để tìm tập phổ biến, tập tối đại, tập đóng và gợi ý sản phẩm")
 
     with gr.Row():
-        file_input = gr.File(label="📂 Chọn file CSV")
+        file_input = gr.File(label="📂😊 Chọn file CSV")
         min_support_input = gr.Slider(minimum=0.01, maximum=1.0, value=0.05, label="⚙️ Min Support")
     
-    product_input = gr.Textbox(label="🔍 Nhập sản phẩm để tìm gợi ý (tùy chọn)")
+    product_input = gr.Textbox(label="🔍😍 Nhập sản phẩm để tìm gợi ý (tùy chọn)")
 
     run_button = gr.Button("🚀 Phân tích ngay", variant="primary")
 
     with gr.Row():
-        status_output = gr.Textbox(label="📢 Trạng thái", interactive=False)
+        suggestion_output = gr.Textbox(label="🎯😍 Gợi ý sản phẩm", interactive=False)
 
-    with gr.Tab("📊 Frequent Itemsets"):
+    with gr.Row():
+        status_output = gr.Textbox(label="📢😉 Trạng thái", interactive=False)
+
+    with gr.Tab("🗃️ Frequent Itemsets"):
         frequent_itemsets_output = gr.Dataframe()
     
-    with gr.Tab("📊 Maximal Frequent Itemsets"):
+    with gr.Tab("🗃️ Maximal Frequent Itemsets"):
         maximal_itemsets_output = gr.Dataframe()
     
-    with gr.Tab("📊 Closed Frequent Itemsets"):
+    with gr.Tab("🗃️ Closed Frequent Itemsets"):
         closed_itemsets_output = gr.Dataframe()
     
     with gr.Row():
         chart_output = gr.Image(label="📈 Biểu đồ Top Frequent Itemsets")
     
-    with gr.Row():
-        suggestion_output = gr.Textbox(label="🎯 Gợi ý sản phẩm", interactive=False)
+    
 
     run_button.click(
         gradio_interface, 

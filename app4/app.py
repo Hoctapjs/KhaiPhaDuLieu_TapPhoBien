@@ -33,6 +33,9 @@ def process_data(file, min_support=0.01):
     # dùng thuật toán Apiori để tìm các tập phổ biến từ dữ liệu
     frequent_itemsets = apriori(df_encoded, min_support=min_support, use_colnames=True)
 
+    if frequent_itemsets.empty:
+        return None, None, None, 0, 0, 0, num_transactions, num_products
+
     # tìm tập tối đại - loại bỏ các tập con của các tập phổ biến khác
     maximal_itemsets = frequent_itemsets[~frequent_itemsets['itemsets'].apply(lambda x: any(
         set(x).issubset(set(y)) for y in frequent_itemsets['itemsets'] if set(x) != set(y)))].copy()
@@ -96,6 +99,9 @@ def gradio_interface(file, min_support, product_name):
     # xử lý dữ liệu từ file csv truyền vào
     frequent_itemsets, maximal_itemsets, closed_itemsets, frequent_count, maximal_count, closed_count, num_transactions, num_products = process_data(file, min_support)
     
+    if frequent_itemsets is None:
+        return "Không tìm thấy tập phổ biến, hãy giảm min-support để có tập phổ biến", None, None, None, None, None, frequent_count, maximal_count, closed_count, num_transactions, num_products
+
     # vẽ biểu đồ với hàm vẽ biểu đồ plot_frequent_itemsets
     plot_path = plot_frequent_itemsets(frequent_itemsets)
 
@@ -182,4 +188,4 @@ with gr.Blocks(css=custom_css) as demo:
     )
 
 # Chạy ứng dụng
-demo.launch(share=True)
+demo.launch(share=False)
